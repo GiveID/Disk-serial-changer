@@ -2,7 +2,7 @@
 
 1. **Run the program as Administrator**:
    ```sh
-   DiskSerialChanger.exe
+   Serial Gen.exe
    ```
 
 2. **Select the desired drive** when prompted.
@@ -11,3 +11,7 @@
 
 4. **Restart your computer** for changes to take effect.
 
+
+
+
+*****UPDATES ARE COMING SOON*****

@@ -91,6 +91,19 @@ class DiskSerialChanger
         Console.WriteLine($"\n🔹 New Serial Number: {newSerial}");
         Console.ResetColor();
 
+        // Ask for confirmation
+        Console.Write("\n⚠️ Are you sure you want to change the serial number? (Y/N): ");
+        string confirmation = Console.ReadLine()?.Trim().ToUpper() ?? "";
+
+        if (confirmation != "Y")
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\n❌ Operation canceled by the user.");
+            Console.ResetColor();
+            PauseBeforeExit();
+            return;
+        }
+
         // Simulating system preparation
         LoadingEffect("⚙️ Preparing system for changes...", 4);
 
@@ -124,6 +137,93 @@ class DiskSerialChanger
         // Prevent the console from closing immediately
         PauseBeforeExit();
     }
+
+    // Generates a random serial number in XXXX-XXXX format (HEX)
+    static string GenerateRandomSerial()
+    {
+        return $"{RandomHex(4)}-{RandomHex(4)}";
+    }
+
+    // Generates a random HEX string of given length
+    static string RandomHex(int length)
+    {
+        const string hexDigits = "0123456789ABCDEF";
+        char[] hexChars = new char[length];
+        for (int i = 0; i < length; i++)
+        {
+            hexChars[i] = hexDigits[random.Next(hexDigits.Length)];
+        }
+        return new string(hexChars);
+    }
+
+    // Loading animation effect
+    static void LoadingEffect(string message, int dots)
+    {
+        Console.Write(message);
+        for (int i = 0; i < dots; i++)
+        {
+            Thread.Sleep(500);
+            Console.Write(".");
+        }
+        Console.WriteLine(" ✅");
+        Thread.Sleep(500);
+    }
+
+    // Prevents the console from closing immediately
+    static void PauseBeforeExit()
+    {
+        Console.WriteLine("\n🔵 Press Enter to exit...");
+        Console.ReadLine();
+    }
+
+    // Checks if the program is running as Administrator
+    static bool IsUserAdministrator()
+    {
+        using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+        {
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+    }
+
+    // Restart the program with Administrator privileges
+    static void RestartAsAdministrator()
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = Process.GetCurrentProcess().MainModule.FileName,
+            UseShellExecute = true,
+            Verb = "runas"
+        };
+        Process.Start(startInfo);
+    }
+
+    // Searches for volumeid.exe in common locations
+    static string FindVolumeIdExe()
+    {
+        string[] commonPaths =
+        {
+        Directory.GetCurrentDirectory(),
+        Environment.GetFolderPath(Environment.SpecialFolder.System),
+        Environment.GetEnvironmentVariable("SystemRoot") + @"\System32",
+        Environment.GetEnvironmentVariable("SystemRoot"),
+        Environment.GetEnvironmentVariable("ProgramFiles"),
+        Environment.GetEnvironmentVariable("ProgramFiles(x86)")
+    };
+
+        foreach (var path in commonPaths)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                string fullPath = Path.Combine(path, "volumeid.exe");
+                if (File.Exists(fullPath))
+                    return fullPath;
+            }
+        }
+
+        return null; // Not found
+    }
+
 
     // Ensures volumeid.exe is available by downloading if necessary
     static string EnsureVolumeIdExe()
@@ -165,100 +265,5 @@ class DiskSerialChanger
         }
 
         return null;
-    }
-
-    // Searches for volumeid.exe in common locations
-    static string FindVolumeIdExe()
-    {
-        string[] commonPaths =
-        {
-            Directory.GetCurrentDirectory(),
-            Environment.GetFolderPath(Environment.SpecialFolder.System),
-            Environment.GetEnvironmentVariable("SystemRoot") + @"\System32",
-            Environment.GetEnvironmentVariable("SystemRoot"),
-            Environment.GetEnvironmentVariable("ProgramFiles"),
-            Environment.GetEnvironmentVariable("ProgramFiles(x86)"),
-        };
-
-        foreach (var path in commonPaths)
-        {
-            if (!string.IsNullOrEmpty(path))
-            {
-                string fullPath = Path.Combine(path, "volumeid.exe");
-                if (File.Exists(fullPath))
-                    return fullPath;
-            }
-        }
-
-        return null;
-    }
-
-    // Check if the program is running as Administrator
-    static bool IsUserAdministrator()
-    {
-        using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
-        {
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-    }
-
-    // Restart the program with Administrator privileges
-    static void RestartAsAdministrator()
-    {
-        try
-        {
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = Process.GetCurrentProcess().MainModule.FileName,
-                UseShellExecute = true,
-                Verb = "runas"
-            };
-            Process.Start(startInfo);
-        }
-        catch (Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"❌ Could not restart with Administrator privileges: {ex.Message}");
-            Console.ResetColor();
-        }
-    }
-
-    // Generates a random serial number in XXXX-XXXX format (HEX)
-    static string GenerateRandomSerial()
-    {
-        return $"{RandomHex(4)}-{RandomHex(4)}";
-    }
-
-    // Generates a random HEX string of given length
-    static string RandomHex(int length)
-    {
-        const string hexDigits = "0123456789ABCDEF";
-        char[] hexChars = new char[length];
-        for (int i = 0; i < length; i++)
-        {
-            hexChars[i] = hexDigits[random.Next(hexDigits.Length)];
-        }
-        return new string(hexChars);
-    }
-
-    // Loading animation
-    static void LoadingEffect(string message, int dots)
-    {
-        Console.Write(message);
-        for (int i = 0; i < dots; i++)
-        {
-            Thread.Sleep(500);
-            Console.Write(".");
-        }
-        Console.WriteLine(" ✅");
-        Thread.Sleep(500);
-    }
-
-    // Prevents the console from closing immediately
-    static void PauseBeforeExit()
-    {
-        Console.WriteLine("\n🔵 Press Enter to exit...");
-        Console.ReadLine();
     }
 }

@@ -11,12 +11,12 @@ class DiskSerialChanger
 {
     static Random random = new Random();
     static string volumeIdExe = "volumeid.exe";
-    static string downloadUrl = "https://download.sysinternals.com/files/VolumeId.zip";
+    static string downloadUrl = "https:
     static string zipFileName = "VolumeId.zip";
 
     static void Main()
     {
-        // Check for Admin rights
+        
         if (!IsUserAdministrator())
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -33,10 +33,10 @@ class DiskSerialChanger
         Console.WriteLine("=====================================\n");
         Console.ResetColor();
 
-        // Simulate a startup scan
+        
         LoadingEffect("🔍 Scanning system...", 5);
 
-        // Ensure volumeid.exe is available
+        
         string volumeIdPath = EnsureVolumeIdExe();
         if (string.IsNullOrEmpty(volumeIdPath))
         {
@@ -51,7 +51,7 @@ class DiskSerialChanger
         Console.WriteLine($"✅ Found volumeid.exe at: {volumeIdPath}\n");
         Console.ResetColor();
 
-        // List available drives
+        
         var drives = DriveInfo.GetDrives()
             .Where(d => d.DriveType == DriveType.Fixed)
             .ToList();
@@ -71,7 +71,7 @@ class DiskSerialChanger
             Console.WriteLine($"  [{i + 1}] {drives[i].Name}");
         }
 
-        // Select a drive
+        
         Console.Write("\n🎯 Select a drive (1-{0}): ", drives.Count);
         if (!int.TryParse(Console.ReadLine(), out int choice) || choice < 1 || choice > drives.Count)
         {
@@ -84,14 +84,14 @@ class DiskSerialChanger
 
         string selectedDrive = drives[choice - 1].Name.TrimEnd('\\');
 
-        // Generate random serial number
+        
         LoadingEffect("🔢 Generating new serial number...", 3);
         string newSerial = GenerateRandomSerial();
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine($"\n🔹 New Serial Number: {newSerial}");
         Console.ResetColor();
 
-        // Ask for confirmation
+        
         Console.Write("\n⚠️ Are you sure you want to change the serial number? (Y/N): ");
         string confirmation = Console.ReadLine()?.Trim().ToUpper() ?? "";
 
@@ -104,12 +104,12 @@ class DiskSerialChanger
             return;
         }
 
-        // Simulating system preparation
+        
         LoadingEffect("⚙️ Preparing system for changes...", 4);
 
         try
         {
-            // Execute volumeid.exe with parameters
+            
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("\n⚡ Changing Serial Number...");
             Console.ResetColor();
@@ -117,8 +117,8 @@ class DiskSerialChanger
             Process process = new Process();
             process.StartInfo.FileName = "cmd.exe";
             process.StartInfo.Arguments = $"/C \"{volumeIdPath}\" {selectedDrive} {newSerial} && pause";
-            process.StartInfo.Verb = "runas";  // Request admin privileges
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Normal; // Show CMD window
+            process.StartInfo.Verb = "runas";  
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Normal; 
             process.Start();
             process.WaitForExit();
 
@@ -134,17 +134,17 @@ class DiskSerialChanger
             Console.ResetColor();
         }
 
-        // Prevent the console from closing immediately
+        
         PauseBeforeExit();
     }
 
-    // Generates a random serial number in XXXX-XXXX format (HEX)
+    
     static string GenerateRandomSerial()
     {
         return $"{RandomHex(4)}-{RandomHex(4)}";
     }
 
-    // Generates a random HEX string of given length
+    
     static string RandomHex(int length)
     {
         const string hexDigits = "0123456789ABCDEF";
@@ -156,7 +156,7 @@ class DiskSerialChanger
         return new string(hexChars);
     }
 
-    // Loading animation effect
+    
     static void LoadingEffect(string message, int dots)
     {
         Console.Write(message);
@@ -169,14 +169,14 @@ class DiskSerialChanger
         Thread.Sleep(500);
     }
 
-    // Prevents the console from closing immediately
+    
     static void PauseBeforeExit()
     {
         Console.WriteLine("\n🔵 Press Enter to exit...");
         Console.ReadLine();
     }
 
-    // Checks if the program is running as Administrator
+    
     static bool IsUserAdministrator()
     {
         using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
@@ -186,7 +186,7 @@ class DiskSerialChanger
         }
     }
 
-    // Restart the program with Administrator privileges
+    
     static void RestartAsAdministrator()
     {
         ProcessStartInfo startInfo = new ProcessStartInfo
@@ -198,7 +198,7 @@ class DiskSerialChanger
         Process.Start(startInfo);
     }
 
-    // Searches for volumeid.exe in common locations
+    
     static string FindVolumeIdExe()
     {
         string[] commonPaths =
@@ -221,11 +221,11 @@ class DiskSerialChanger
             }
         }
 
-        return null; // Not found
+        return null; 
     }
 
 
-    // Ensures volumeid.exe is available by downloading if necessary
+    
     static string EnsureVolumeIdExe()
     {
         string volumeIdPath = FindVolumeIdExe();
@@ -250,7 +250,7 @@ class DiskSerialChanger
             Console.ResetColor();
 
             ZipFile.ExtractToDirectory(zipFileName, Directory.GetCurrentDirectory());
-            File.Delete(zipFileName); // Clean up the zip file
+            File.Delete(zipFileName); 
 
             if (File.Exists(volumeIdExe))
             {
